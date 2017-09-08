@@ -1,7 +1,13 @@
-
+<?php
+$message = "";
+if(isset($_GET['message'])) {
+    $message = $_GET['message'];
+    
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
-
+    <!--HIEPEXP: neu chuyen sang nhieu loai trang can viet tach php ra-->
     <head>
         <!-- Required meta tags -->
         <meta charset="utf-8">
@@ -16,22 +22,39 @@
                 <div class="col">
                     <h1> Login to CabsOnline </h1>
 
-                    <form method="post">
+                    <form action="db_login.php" method="post">
                         <div class="form-group row">
                             <label for="idEmail" class="col-sm-2 col-form-label">Email:</label>
                             <div class="col-sm-10">
-                                <input name="email" type="email" class="form-control" id="idEmail" placeholder="" required>
+                                <input name="email" type="email" class="form-control" id="idEmail" 
+                                       placeholder="" required value="<?php echo isset($_POST['email']) ? $_POST['email'] : '' ?>">
                             </div>
                         </div>
 
                         <div class="form-group row">
                             <label for="idPassword" class="col-sm-2 col-form-label">Password:</label>
                             <div class="col-sm-10">
-                                <input name="password" type="password" class="form-control" id="idPassword" placeholder="" required>
+                                <input name="password" type="password" class="form-control" id="idPassword" placeholder="" required
+                                       value="<?php echo isset($_POST['password']) ? $_POST['password'] : '' ?>">
                             </div>
                         </div>
                         <button type="submit" class="btn btn-primary">Login</button>
                     </form>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <?php
+                    if ($message != '') {
+                        echo '<div class="alert alert-danger" id="successMessage" role="alert">';
+                        if($message == 'notmatch') {
+                            echo 'Login fail because of wrong username or password';
+                        } else {
+                            echo 'You need to have valid username and password';
+                        }
+                        echo '</div>';
+                    }
+                    ?>
                 </div>
             </div>
             <div class="row">
@@ -43,50 +66,6 @@
         </div>
 
     </body>
-
-    <?php
-    $email = htmlspecialchars($_POST['email']);
-    $password = htmlspecialchars($_POST['password']);
-    $numOfRow = 0;
-    if (isset($email) && isset($password) && !empty($email) && !empty($password)) {
-        //TODO check if empty -> tra ve string error, check confirm password
-        // xu li trim cua email, password
-        
-        $DBConnect = mysqli_connect("localhost", "root", "root", "wad_assignment1")
-                Or die("<p>Unable to connect to the database server.</p>" . "<p>Error code " . mysqli_connect_errno() . ": " . mysqli_connect_error()) . "</p>";
-
-        $SQLstring = 'select * from customer where email="' . $email . '" and password="' . $password . '"';
-
-        $queryResult = mysqli_query($DBConnect, $SQLstring)
-                Or die("<p>Unable to query the customer table.</p>" . "<p>Error code " . mysqli_errno($DBConnect) . ": " . mysqli_error($DBConnect)) . "</p>";
-        $numOfRow = mysqli_num_rows($queryResult);
-        $row = mysqli_fetch_array($queryResult);
-        mysqli_close($DBConnect);
-
-        if ($numOfRow != 0) {
-            // going to admin with account and password
-            if ($email =='admin@abc.com' && $password=='admin') {
-                header("Location: admin.php");
-                exit();
-            }
-            // go to booking because it is a customer
-            else {
-                header("Location: booking.php?email=" . urlencode($email));
-                exit();
-            }
-        }
-        // login again because no matching with customer database
-        else {
-            header("Location: login.php");
-            exit();
-        }
-    }
-// login again because empty account and password
-    else {
-        header("Location: login.php");
-        exit();
-    }
-    ?>
-
+    
 </html>
 

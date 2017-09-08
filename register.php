@@ -9,22 +9,26 @@ $message = '';
 $insertOk = 'not';
 
 
-if (isset($customerName) && isset($password) && isset($confirmPassword) && isset($email) && isset($phoneNumber)
-        && !empty($customerName) && !empty($password) && !empty($confirmPassword) && !empty($email) && !empty($phoneNumber) ) {
+if (isset($customerName) && isset($password) && isset($confirmPassword) && isset($email) && isset($phoneNumber) && !empty($customerName) && !empty($password) && !empty($confirmPassword) && !empty($email) && !empty($phoneNumber)) {
     //TODO check if empty -> tra ve string error, check confirm password
     //TODO check if run success -> redirect to login.php
 
     if ($password == $confirmPassword) {
-        $DBConnect = mysqli_connect("localhost", "root", "root", "wad_assignment1")
+//        $DBConnect = mysqli_connect("localhost", "root", "root", "wad_assignment1")
+        $DBConnect = @mysqli_connect("feenix-mariadb.swin.edu.au", "s100861469", "090891", "s100861469_db")
                 Or die("<p>Unable to connect to the database server.</p>" . "<p>Error code " . mysqli_connect_errno() . ": " . mysqli_connect_error()) . "</p>";
 
-        $stmt = $DBConnect->prepare('INSERT INTO customer(customerName, email, password, phoneNumber) values(?,?,?,?)');
+        $stmt = $DBConnect->prepare('INSERT INTO Customer(customerName, email, password, phoneNumber) values(?,?,?,?)');
         $stmt->bind_param("ssss", $customerName, $email, $password, $phoneNumber);
 
-        $sqlMatch = "select * from customer where email='" . $email . "'";
+        $sqlMatch = "select * from Customer where email='" . $email . "'";
         $queryMatch = mysqli_query($DBConnect, $sqlMatch);
-        if (!$stmt->execute() && mysqli_num_rows($queryMatch) == 0) {
-            $message = "Error occured! Use the different email";
+        if (!$stmt->execute()) {
+            $message = "Error occured when registering";
+            $insertOk = "not";
+        } else if (mysqli_num_rows($queryMatch) > 0) {
+            $message = "Error ! Use the different email";
+            $insertOk = "not";
         } else {
             $message = '';
             $insertOk = 'ok';
@@ -34,9 +38,9 @@ if (isset($customerName) && isset($password) && isset($confirmPassword) && isset
         mysqli_close($DBConnect);
     } else {
         $message = 'Password is not match';
+        $insertOk = "not";
     }
 }
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -47,6 +51,15 @@ if (isset($customerName) && isset($password) && isset($confirmPassword) && isset
 
         <!-- Bootstrap CSS -->
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+        <script type="text/javascript">
+            var displaySuccess = '<?php echo $insertOk; ?>';
+            var divSuccess = document.getElementById("successMessage");
+            if (displaySuccess === "ok") {
+                divSuccess.style.display = 'block';
+            } else {
+                divSuccess.style.display = 'none';
+            }
+        </script>
     </head>
     <body>
         <div class="container">
@@ -107,8 +120,8 @@ if (isset($customerName) && isset($password) && isset($confirmPassword) && isset
                         echo '<div class="alert alert-danger" role="alert">';
                         echo $message;
                         echo '</div>';
-                    } if ($insertOk === 'ok') {
-                        echo '<div class="alert alert-success" role="alert">';
+                    } if ($insertOk == 'ok') {
+                        echo '<div class="alert alert-success" id="successMessage" role="alert">';
                         echo 'Register successful';
                         echo '</div>';
                     }

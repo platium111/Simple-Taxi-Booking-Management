@@ -6,10 +6,11 @@ if (isset($_POST['referenceNumber'])) {
 
     if (!empty($refNumber)) {
 //            $refNumber = mysql_real_escape_string(htmlspecialchars($refNumber));
-        $DBConnect = mysqli_connect("localhost", "root", "root", "wad_assignment1")
+//        $DBConnect = mysqli_connect("localhost", "root", "root", "wad_assignment1")
+        $DBConnect = @mysqli_connect("feenix-mariadb.swin.edu.au", "s100861469", "090891", "s100861469_db")
                 Or die("<p>Unable to connect to the database server.</p>" . "<p>Error code " . mysqli_connect_errno() . ": " . mysqli_connect_error()) . "</p>";
         $SQLstring = 'UPDATE Booking SET status="assigned" WHERE bookingNumber="' . $refNumber . '"';
-        $sqlMatch = "select * from booking where bookingNumber='" . $refNumber . "'";
+        $sqlMatch = "select * from Booking where bookingNumber='" . $refNumber . "'";
         $queryResult = mysqli_query($DBConnect, $SQLstring)
                 Or die("<p>Unable to query the customer table.</p>" . "<p>Error code " . mysqli_errno($DBConnect) . ": " . mysqli_error($DBConnect)) . "</p>";
         $queryMatch = mysqli_query($DBConnect, $sqlMatch);
@@ -22,12 +23,13 @@ if (isset($_POST['referenceNumber'])) {
     }
 }
 
-$DBConnect = mysqli_connect("localhost", "root", "root", "wad_assignment1")
+//$DBConnect = mysqli_connect("localhost", "root", "root", "wad_assignment1")
+$DBConnect = @mysqli_connect("feenix-mariadb.swin.edu.au", "s100861469", "090891", "s100861469_db")
         Or die("<p>Unable to connect to the database server.</p>" . "<p>Error code " . mysqli_connect_errno() . ": " . mysqli_connect_error()) . "</p>";
 
 $currenttime = date("Y-m-d h:m:s");
 
-$SQLstring = 'select * from customer c INNER JOIN booking b where c.email = b.email AND b.status="unassigned"';
+$SQLstring = 'select * from Customer c INNER JOIN Booking b where c.email = b.email AND b.status="unassigned"';
 
 $queryResult = mysqli_query($DBConnect, $SQLstring)
         Or die("<p>Unable to query the customer table.</p>" . "<p>Error code " . mysqli_errno($DBConnect) . ": " . mysqli_error($DBConnect)) . "</p>";
